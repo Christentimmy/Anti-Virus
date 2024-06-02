@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:percent_indicator/percent_indicator.dart';
+import 'package:lottie/lottie.dart';
+import 'package:simple_progress_indicators/simple_progress_indicators.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,7 +12,6 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Malware Scanner',
@@ -38,7 +38,7 @@ class HomeScreen extends StatelessWidget {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const ScanScreen()),
+              MaterialPageRoute(builder: (context) => ScanScreen()),
             );
           },
           child: const Text('Start Scan'),
@@ -49,16 +49,14 @@ class HomeScreen extends StatelessWidget {
 }
 
 class ScanScreen extends StatefulWidget {
-  const ScanScreen({super.key});
-
   @override
   _ScanScreenState createState() => _ScanScreenState();
 }
 
 class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _animation;
   List<Task> tasks = [];
+  String statusText = "Optimizing";
 
   @override
   void initState() {
@@ -69,51 +67,51 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
     )..addListener(() {
         setState(() {});
       });
-    _animation = CurvedAnimation(parent: _controller, curve: Curves.linear);
 
     tasks = [
-      Task(name: 'Cleanup', status: '2 items optimized', isComplete: false),
-      Task(name: 'Privacy', status: '1 item optimized', isComplete: false),
-      Task(
-          name: 'Security protection',
-          status: 'Accessibility turned off',
-          isComplete: false),
-      Task(name: 'General', status: 'Pending...', isComplete: false),
+      Task(name: 'Cleanup', status: 'Optimizing system files...', details: '', isComplete: false, progress: 0.0),
+      Task(name: 'Privacy', status: 'Scanning private data...', details: '', isComplete: false, progress: 0.0),
+      Task(name: 'Security protection', status: 'Checking security...', details: '', isComplete: false, progress: 0.0),
+      Task(name: 'General', status: 'Performing general optimization...', details: '', isComplete: false, progress: 0.0),
     ];
-
     startScan();
   }
 
-  void startScan() {
-    _controller.forward().then((_) {
-      setState(() {
-        tasks[0].isComplete = true;
-        tasks[1].isComplete = true;
-        tasks[2].isComplete = true;
-        tasks[3].isComplete = true;
-      });
-    });
+  Future<void> startScan() async {
+    _controller.forward();
 
-    Future.delayed(const Duration(seconds: 2), () {
+    for (int i = 0; i < tasks.length; i++) {
+      for (double p = 0.0; p <= 1.0; p += 0.1) {
+        await Future.delayed(Duration(milliseconds: 300));
+        setState(() {
+          tasks[i].progress = p;
+          tasks[i].details = getRandomDetails(tasks[i].name);
+        });
+      }
       setState(() {
-        tasks[0].isComplete = true;
+        tasks[i].isComplete = true;
+        tasks[i].status = '${i + 2} items optimized';
+        tasks[i].details = '';  // Clear the details once the task is complete
       });
+    }
+
+    setState(() {
+      statusText = "Done";
     });
-    Future.delayed(const Duration(seconds: 3), () {
-      setState(() {
-        tasks[1].isComplete = true;
-      });
-    });
-    Future.delayed(const Duration(seconds: 4), () {
-      setState(() {
-        tasks[2].isComplete = true;
-      });
-    });
-    Future.delayed(const Duration(seconds: 5), () {
-      setState(() {
-        tasks[3].isComplete = true;
-      });
-    });
+  }
+
+  String getRandomDetails(String taskName) {
+    List<String> detailsList = [
+      'Checking files...',
+      'Optimizing system performance...',
+      'Cleaning up temporary files...',
+      'Removing redundant files...',
+      'Enhancing privacy settings...',
+      'Updating security protocols...',
+      'Finalizing optimizations...'
+    ];
+    detailsList.shuffle();
+    return detailsList.first;
   }
 
   @override
@@ -126,72 +124,74 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: SafeArea(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-                const SizedBox(height: 40),
-              CircularPercentIndicator(
-                radius: 120.0,
-                lineWidth: 13.0,
-                animation: true,
-                percent: _animation.value,
-                center: Text(
-                  "${(_animation.value * 100).round()}%",
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20.0,
-                    color: Colors.white,
-                  ),
-                ),
-                circularStrokeCap: CircularStrokeCap.round,
-                progressColor: Colors.green,
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Optimizing',
-                style: TextStyle(
-                  fontSize: 24,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: tasks.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      leading: Icon(
-                        tasks[index].isComplete
-                            ? Icons.check_circle
-                            : Icons.radio_button_unchecked,
-                        color:
-                            tasks[index].isComplete ? Colors.green : Colors.white,
-                      ),
-                      title: Text(
-                        tasks[index].name,
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                      subtitle: Text(
-                        tasks[index].status,
-                        style: const TextStyle(color: Colors.white70),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(),
-                onPressed: () {
-                  Navigator.pop(context);
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const SizedBox(height: 50),
+            Lottie.asset(
+              "assets/anim/scan.json",
+              width: 250,
+              height: 250,
+              fit: BoxFit.cover,
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: tasks.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    trailing: Icon(
+                      tasks[index].isComplete
+                          ? Icons.check_circle
+                          : Icons.radio_button_unchecked,
+                      color: tasks[index].isComplete ? Colors.blue : Colors.white,
+                    ),
+                    title: Text(
+                      tasks[index].name,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    subtitle: tasks[index].isComplete
+                        ? null
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                tasks[index].details,
+                                style: const TextStyle(color: Colors.white70),
+                              ),
+                              const SizedBox(height: 4),
+                              AnimatedProgressBar(
+                                value: tasks[index].progress,
+                                duration: Duration(milliseconds: 300),
+                                width: MediaQuery.of(context).size.width * 0.6,
+                                height: 10.0,
+                                color: Colors.blue,
+                                backgroundColor: Colors.grey,
+                                curve: Curves.easeInOut,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                tasks[index].status,
+                                style: const TextStyle(color: Colors.white70),
+                              ),
+                            ],
+                          ),
+                  );
                 },
-                child: const Text('Cancel'),
               ),
-              const SizedBox(height: 20),
-            ],
-          ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                // primary: Colors.green,
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text(statusText),
+            ),
+            const SizedBox(height: 20),
+          ],
         ),
       ),
     );
@@ -200,8 +200,16 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
 
 class Task {
   final String name;
-  final String status;
+  String status;
+  String details;
   bool isComplete;
+  double progress;
 
-  Task({required this.name, required this.status, this.isComplete = false});
+  Task({
+    required this.name,
+    required this.status,
+    required this.details,
+    this.isComplete = false,
+    this.progress = 0.0,
+  });
 }
