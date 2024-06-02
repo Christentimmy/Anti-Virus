@@ -38,6 +38,7 @@ dependencies:
   percent_indicator: ^4.2.3
   lottie: ^3.1.2
   simple_progress_indicators: ^0.2.0
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:
