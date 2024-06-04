@@ -1,28 +1,9 @@
-import 'package:antivirus/scan.dart';
+import 'package:antivirus/login_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:lottie/lottie.dart';
 
 class OnboardingScreen extends StatelessWidget {
  const OnboardingScreen({super.key});
-
-  // final List _onboarding = [
-  //   [
-  //     "assets/anim/intro1.json",
-  //     "Unmatched Security",
-  //     "Safeguard your data with industry-leading encryption and advanced security measures.",
-  //   ],
-  //   [
-  //     "assets/anim/intro2.json",
-  //     "Real-Time Malware Detection",
-  //     "Stay protected with our cutting-edge malware detection and removal tools.",
-  //   ],
-  //   [
-  //     "assets/anim/intro3.json",
-  //     "Comprehensive Protection",
-  //     "Experience peace of mind with our all-in-one security suite, designed to keep all your devices safe."
-  //   ]
-  // ];
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +35,7 @@ class OnboardingScreen extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const ScanScreen()),
+                  MaterialPageRoute(builder: (context) => LoginScreen()),
                 );
               },
               child: Container(
@@ -66,7 +47,7 @@ class OnboardingScreen extends StatelessWidget {
                   color: Colors.blue,
                 ),
                 child: const Text(
-                  "Scan Now",
+                  "Next",
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
@@ -81,14 +62,3 @@ class OnboardingScreen extends StatelessWidget {
     );
   }
 }
-
-
-// ElevatedButton(
-//             onPressed: () {
-//               Navigator.push(
-//                 context,
-//                 MaterialPageRoute(builder: (context) => const ScanScreen()),
-//               );
-//             },
-//             child: const Text('Start Scan'),
-//           ),

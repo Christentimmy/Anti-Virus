@@ -53,28 +53,64 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
     startScan();
   }
 
-  Future<void> startScan() async {
-    _controller.forward();
 
-    for (int i = 0; i < tasks.length; i++) {
-      for (double p = 0.0; p <= 1.0; p += 0.1) {
-        await Future.delayed(Duration(milliseconds: 300));
-        setState(() {
-          tasks[i].progress = p;
-          tasks[i].details = getRandomDetails(tasks[i].name);
-        });
+
+  Future<void> startScan() async {
+  _controller.forward();
+
+  for (int i = 0; i < tasks.length; i++) {
+    // Varying speeds example: Full speed -> 40% speed -> Slow -> 70% speed
+    for (double p = 0.0; p <= 1.0; p += 0.1) {
+      if (p <= 0.4) {
+        // Full speed
+        await Future.delayed(const Duration(milliseconds: 100));
+      } else if (p > 0.4 && p <= 0.7) {
+        // 40% speed
+        await Future.delayed(const Duration(milliseconds: 500));
+      } else {
+        // Slow speed
+        await Future.delayed(const Duration(milliseconds: 1500));
       }
       setState(() {
-        tasks[i].isComplete = true;
-        tasks[i].status = '${i + 2} items optimized';
-        tasks[i].details = ''; // Clear the details once the task is complete
+        tasks[i].progress = p;
+        tasks[i].details = getRandomDetails(tasks[i].name);
       });
     }
-
     setState(() {
-      statusText = "Done";
+      tasks[i].isComplete = true;
+      tasks[i].status = '${i + 2} items optimized';
+      tasks[i].details = ''; // Clear the details once the task is complete
     });
   }
+
+  setState(() {
+    statusText = "Done";
+  });
+}
+
+
+  // Future<void> startScan() async {
+  //   _controller.forward();
+
+  //   for (int i = 0; i < tasks.length; i++) {
+  //     for (double p = 0.0; p <= 1.0; p += 0.1) {
+  //       await Future.delayed(const Duration(milliseconds: 300));
+  //       setState(() {
+  //         tasks[i].progress = p;
+  //         tasks[i].details = getRandomDetails(tasks[i].name);
+  //       });
+  //     }
+  //     setState(() {
+  //       tasks[i].isComplete = true;
+  //       tasks[i].status = '${i + 2} items optimized';
+  //       tasks[i].details = ''; // Clear the details once the task is complete
+  //     });
+  //   }
+
+  //   setState(() {
+  //     statusText = "Done";
+  //   });
+  // }
 
   String getRandomDetails(String taskName) {
     List<String> detailsList = [
@@ -125,7 +161,11 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
                     ),
                     title: Text(
                       tasks[index].name,
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     subtitle: tasks[index].isComplete
                         ? null
@@ -134,14 +174,15 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
                             children: [
                               Text(
                                 tasks[index].details,
-                                style: const TextStyle(color: Colors.white70),
+                                style: const TextStyle(
+                                    color: Colors.white70, fontSize: 12),
                               ),
                               const SizedBox(height: 4),
                               AnimatedProgressBar(
                                 value: tasks[index].progress,
-                                duration: Duration(milliseconds: 300),
+                                duration: const Duration(milliseconds: 300),
                                 width: MediaQuery.of(context).size.width * 0.6,
-                                height: 10.0,
+                                height: 3.0,
                                 color: Colors.blue,
                                 backgroundColor: Colors.grey,
                                 curve: Curves.easeInOut,
@@ -149,7 +190,10 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
                               const SizedBox(height: 4),
                               Text(
                                 tasks[index].status,
-                                style: const TextStyle(color: Colors.white70),
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 10,
+                                ),
                               ),
                             ],
                           ),
@@ -165,7 +209,12 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text(statusText),
+              child: Text(
+                statusText,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
             const SizedBox(height: 20),
           ],
