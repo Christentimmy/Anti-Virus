@@ -1,6 +1,8 @@
+import 'package:antivirus/success_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:simple_progress_indicators/simple_progress_indicators.dart';
+import 'package:get/get.dart';
 
 class ScanScreen extends StatefulWidget {
   const ScanScreen({super.key});
@@ -10,19 +12,13 @@ class ScanScreen extends StatefulWidget {
 }
 
 class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
-  late AnimationController _controller;
   List<Task> tasks = [];
-  String statusText = "Optimizing";
+  RxString statusText = "Optimizing".obs;
+  final RxBool _isOperationComplete = false.obs;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: const Duration(seconds: 5),
-      vsync: this,
-    )..addListener(() {
-        setState(() {});
-      });
 
     tasks = [
       Task(
@@ -53,64 +49,38 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
     startScan();
   }
 
-
-
   Future<void> startScan() async {
-  _controller.forward();
+    _isOperationComplete.value = true;
 
-  for (int i = 0; i < tasks.length; i++) {
-    // Varying speeds example: Full speed -> 40% speed -> Slow -> 70% speed
-    for (double p = 0.0; p <= 1.0; p += 0.1) {
-      if (p <= 0.4) {
-        // Full speed
-        await Future.delayed(const Duration(milliseconds: 100));
-      } else if (p > 0.4 && p <= 0.7) {
-        // 40% speed
-        await Future.delayed(const Duration(milliseconds: 500));
-      } else {
-        // Slow speed
-        await Future.delayed(const Duration(milliseconds: 1500));
+
+    for (int i = 0; i < tasks.length; i++) {
+      // Varying speeds example: Full speed -> 40% speed -> Slow -> 70% speed
+      for (double p = 0.0; p <= 1.0; p += 0.1) {
+        if (p <= 0.4) {
+          // Full speed
+          await Future.delayed(const Duration(milliseconds: 100));
+        } else if (p > 0.4 && p <= 0.7) {
+          // 40% speed
+          await Future.delayed(const Duration(milliseconds: 500));
+        } else {
+          // Slow speed
+          await Future.delayed(const Duration(milliseconds: 1500));
+        }
+        setState(() {
+          tasks[i].progress = p;
+          tasks[i].details = getRandomDetails(tasks[i].name);
+        });
       }
       setState(() {
-        tasks[i].progress = p;
-        tasks[i].details = getRandomDetails(tasks[i].name);
+        tasks[i].isComplete = true;
+        tasks[i].status = '${i + 2} items optimized';
+        tasks[i].details = ''; // Clear the details once the task is complete
       });
     }
-    setState(() {
-      tasks[i].isComplete = true;
-      tasks[i].status = '${i + 2} items optimized';
-      tasks[i].details = ''; // Clear the details once the task is complete
-    });
+
+    statusText.value = "Done";
+    _isOperationComplete.value = false;
   }
-
-  setState(() {
-    statusText = "Done";
-  });
-}
-
-
-  // Future<void> startScan() async {
-  //   _controller.forward();
-
-  //   for (int i = 0; i < tasks.length; i++) {
-  //     for (double p = 0.0; p <= 1.0; p += 0.1) {
-  //       await Future.delayed(const Duration(milliseconds: 300));
-  //       setState(() {
-  //         tasks[i].progress = p;
-  //         tasks[i].details = getRandomDetails(tasks[i].name);
-  //       });
-  //     }
-  //     setState(() {
-  //       tasks[i].isComplete = true;
-  //       tasks[i].status = '${i + 2} items optimized';
-  //       tasks[i].details = ''; // Clear the details once the task is complete
-  //     });
-  //   }
-
-  //   setState(() {
-  //     statusText = "Done";
-  //   });
-  // }
 
   String getRandomDetails(String taskName) {
     List<String> detailsList = [
@@ -127,12 +97,6 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
   }
 
   @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
@@ -141,11 +105,24 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const SizedBox(height: 50),
-            Lottie.asset(
-              "assets/anim/scan.json",
-              width: 250,
+            SizedBox(
               height: 250,
-              fit: BoxFit.cover,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Lottie.asset(
+                    "assets/anim/scan.json",
+                    width: 250,
+                    height: 250,
+                    fit: BoxFit.cover,
+                  ),
+                  Image.asset(
+                    "assets/images/ant.png",
+                    width: 100,
+                    color: Colors.black,
+                  ),
+                ],
+              ),
             ),
             Expanded(
               child: ListView.builder(
@@ -203,16 +180,27 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                  // primary: Colors.green,
-                  ),
               onPressed: () {
-                Navigator.pop(context);
+                if (_isOperationComplete.value) {
+                  Get.snackbar(
+                    "Error",
+                    "Chill, Operation in prgress",
+                    snackPosition: SnackPosition.BOTTOM,
+                  );
+                } else {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => const SuccessScreen(),
+                    ),
+                  );
+               }
               },
-              child: Text(
-                statusText,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
+              child: Obx(
+                () => Text(
+                  statusText.value,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
