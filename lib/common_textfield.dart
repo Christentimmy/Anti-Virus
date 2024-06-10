@@ -24,6 +24,7 @@ class CustomTextField extends StatelessWidget {
     this.type,
     this.passwordValidator,
     this.maxline,
+    required Color activeColor,
   });
 
   @override

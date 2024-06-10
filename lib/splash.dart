@@ -9,7 +9,6 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-
   @override
   void initState() {
     super.initState();
@@ -26,7 +25,11 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.blue.shade50,
-      child: Image.asset("assets/images/ant.png"),
+      child: Image.asset(
+        "assets/images/ant.png",
+        width: 50,
+        height: 50,
+      ),
     );
   }
 }

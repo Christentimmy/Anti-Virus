@@ -1,11 +1,14 @@
-import 'package:antivirus/success_screen.dart';
+import 'dart:io';
+
+import 'package:antivirus/color.dart';
 import 'package:flutter/material.dart';
+import 'package:antivirus/success_screen.dart';
 import 'package:lottie/lottie.dart';
 import 'package:simple_progress_indicators/simple_progress_indicators.dart';
 import 'package:get/get.dart';
 
 class ScanScreen extends StatefulWidget {
-  const ScanScreen({super.key});
+  const ScanScreen({Key? key}) : super(key: key);
 
   @override
   State<ScanScreen> createState() => _ScanScreenState();
@@ -52,7 +55,6 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
   Future<void> startScan() async {
     _isOperationComplete.value = true;
 
-
     for (int i = 0; i < tasks.length; i++) {
       // Varying speeds example: Full speed -> 40% speed -> Slow -> 70% speed
       for (double p = 0.0; p <= 1.0; p += 0.1) {
@@ -98,115 +100,228 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final isMacOS = Platform.isMacOS;
+    final screenSize = MediaQuery.of(context).size;
+    final isSmallScreen = screenSize.width < 600;
+
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const SizedBox(height: 50),
-            SizedBox(
-              height: 250,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Lottie.asset(
-                    "assets/anim/scan.json",
-                    width: 250,
-                    height: 250,
-                    fit: BoxFit.cover,
-                  ),
-                  Image.asset(
-                    "assets/images/ant.png",
-                    width: 100,
-                    color: Colors.black,
-                  ),
-                ],
-              ),
-            ),
+      body: Row(
+        children: [
+          if (isMacOS &&
+              !isSmallScreen) // Show sidebar only on macOS and when screen width is larger than 600
             Expanded(
-              child: ListView.builder(
-                itemCount: tasks.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    trailing: Icon(
-                      tasks[index].isComplete
-                          ? Icons.check_circle
-                          : Icons.radio_button_unchecked,
-                      color:
-                          tasks[index].isComplete ? Colors.blue : Colors.white,
-                    ),
-                    title: Text(
-                      tasks[index].name,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+              flex: 1,
+              child: Container(
+                color: AppConfig.primaryColor, // Sidebar background color
+                // Add your sidebar content here
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CircleAvatar(
+                        radius: 30,
+                        backgroundImage: AssetImage(
+                            'assets/images/user_image.jpg'), // Your user image
                       ),
-                    ),
-                    subtitle: tasks[index].isComplete
-                        ? null
-                        : Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                tasks[index].details,
-                                style: const TextStyle(
-                                    color: Colors.white70, fontSize: 12),
-                              ),
-                              const SizedBox(height: 4),
-                              AnimatedProgressBar(
-                                value: tasks[index].progress,
-                                duration: const Duration(milliseconds: 300),
-                                width: MediaQuery.of(context).size.width * 0.6,
-                                height: 3.0,
-                                color: Colors.blue,
-                                backgroundColor: Colors.grey,
-                                curve: Curves.easeInOut,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                tasks[index].status,
-                                style: const TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 10,
-                                ),
-                              ),
-                            ],
+                      SizedBox(height: 20),
+                      Text(
+                        'Username',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      Divider(color: Colors.white),
+                      SizedBox(height: 10),
+                      GestureDetector(
+                        onTap: () {
+                          // Handle about us tap
+                        },
+                        child: Text(
+                          'About Us',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
                           ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                if (_isOperationComplete.value) {
-                  Get.snackbar(
-                    "Error",
-                    "Chill, Operation in prgress",
-                    snackPosition: SnackPosition.BOTTOM,
-                  );
-                } else {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => const SuccessScreen(),
-                    ),
-                  );
-               }
-              },
-              child: Obx(
-                () => Text(
-                  statusText.value,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      GestureDetector(
+                        onTap: () {
+                          // Handle contact us tap
+                        },
+                        child: Text(
+                          'Contact Us',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      GestureDetector(
+                        onTap: () {
+                          // Handle logout tap
+                        },
+                        child: Text(
+                          'Logout',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      GestureDetector(
+                        onTap: () {
+                          // Handle profile tap
+                        },
+                        child: Text(
+                          'Profile',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      Divider(color: Colors.white),
+                    ],
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 20),
-          ],
-        ),
+          Expanded(
+            flex: isMacOS
+                ? (isSmallScreen ? 4 : 3)
+                : 4, // Adjust flex value based on macOS and screen width
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: 250,
+                    width: 250,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Lottie.asset(
+                          "assets/anim/scan.json",
+                          width: 250,
+                          height: 250,
+                          fit: BoxFit.cover,
+                        ),
+                        Image.asset(
+                          "assets/images/ant.png",
+                          width: 100,
+                          color: Colors.black,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: tasks.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          trailing: Icon(
+                            tasks[index].isComplete
+                                ? Icons.check_circle
+                                : Icons.radio_button_unchecked,
+                            color: tasks[index].isComplete
+                                ? AppConfig.primaryColor
+                                : Colors.white,
+                          ),
+                          title: Text(
+                            tasks[index].name,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          subtitle: tasks[index].isComplete
+                              ? null
+                              : Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      tasks[index].details,
+                                      style: const TextStyle(
+                                          color: Colors.white70, fontSize: 12),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    AnimatedProgressBar(
+                                      value: tasks[index].progress,
+                                      duration:
+                                          const Duration(milliseconds: 300),
+                                      width: MediaQuery.of(context).size.width *
+                                          0.6,
+                                      height: 3.0,
+                                      color: AppConfig.primaryColor,
+                                      backgroundColor: Colors.grey,
+                                      curve: Curves.easeInOut,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      tasks[index].status,
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                        );
+                      },
+                    ),
+                  ),
+                  Visibility(
+                    visible: isSmallScreen,
+                    child: const SizedBox(height: 20),
+                  ),
+                  Visibility(
+                    visible: isSmallScreen,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (_isOperationComplete.value) {
+                          Get.snackbar(
+                            "Error",
+                            "Chill, Operation in progress",
+                            snackPosition: SnackPosition.BOTTOM,
+                          );
+                        } else {
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (context) => const SuccessScreen(),
+                            ),
+                          );
+                        }
+                      },
+                      child: Obx(
+                        () => Text(
+                          statusText.value,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Visibility(
+                    visible: isSmallScreen,
+                    child: const SizedBox(height: 20),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
