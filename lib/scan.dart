@@ -124,11 +124,11 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
                       CircleAvatar(
                         radius: 30,
                         backgroundImage: AssetImage(
-                            'assets/images/user_image.jpg'), // Your user image
+                            'assets/images/ant.png'), // Your user image
                       ),
                       SizedBox(height: 20),
                       Text(
-                        'Username',
+                        'Welcome to Ant',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -136,61 +136,6 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
                         ),
                       ),
                       SizedBox(height: 10),
-                      Divider(color: Colors.white),
-                      SizedBox(height: 10),
-                      GestureDetector(
-                        onTap: () {
-                          // Handle about us tap
-                        },
-                        child: Text(
-                          'About Us',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      GestureDetector(
-                        onTap: () {
-                          // Handle contact us tap
-                        },
-                        child: Text(
-                          'Contact Us',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      GestureDetector(
-                        onTap: () {
-                          // Handle logout tap
-                        },
-                        child: Text(
-                          'Logout',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      GestureDetector(
-                        onTap: () {
-                          // Handle profile tap
-                        },
-                        child: Text(
-                          'Profile',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      Divider(color: Colors.white),
                     ],
                   ),
                 ),
@@ -285,34 +230,32 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
                     visible: isSmallScreen,
                     child: const SizedBox(height: 20),
                   ),
-                  Visibility(
-                    visible: isSmallScreen,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (_isOperationComplete.value) {
-                          Get.snackbar(
-                            "Error",
-                            "Chill, Operation in progress",
-                            snackPosition: SnackPosition.BOTTOM,
-                          );
-                        } else {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => const SuccessScreen(),
-                            ),
-                          );
-                        }
-                      },
-                      child: Obx(
-                        () => Text(
-                          statusText.value,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_isOperationComplete.value) {
+                        Get.snackbar(
+                          "Error",
+                          "Chill, Operation in progress",
+                          snackPosition: SnackPosition.BOTTOM,
+                        );
+                      } else {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (context) => const SuccessScreen(),
                           ),
+                        );
+                      }
+                    },
+                    child: Obx(
+                      () => Text(
+                        statusText.value,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
                   ),
+                  const SizedBox(height: 20),
                   Visibility(
                     visible: isSmallScreen,
                     child: const SizedBox(height: 20),

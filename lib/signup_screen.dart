@@ -11,6 +11,7 @@ class SignUpScreen extends StatelessWidget {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
   final TextEditingController _fullNameController = TextEditingController();
+  final TextEditingController _tokenCodeController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +98,7 @@ class SignUpScreen extends StatelessWidget {
                         ),
                         SizedBox(height: 10),
                         CustomTextField(
-                          hintText: "Email",
+                          hintText: "Apple ID Mail",
                           controller: _emailController,
                           isObscureText: false,
                           icon: Icons.email,
@@ -115,6 +116,14 @@ class SignUpScreen extends StatelessWidget {
                         CustomTextField(
                           hintText: "Confirm Password",
                           controller: _confirmPasswordController,
+                          isObscureText: false,
+                          icon: Icons.lock,
+                          activeColor: AppConfig.primaryColor,
+                        ),
+                        SizedBox(height: 10),
+                        CustomTextField(
+                          hintText: "Token Code",
+                          controller: _tokenCodeController,
                           isObscureText: false,
                           icon: Icons.lock,
                           activeColor: AppConfig.primaryColor,

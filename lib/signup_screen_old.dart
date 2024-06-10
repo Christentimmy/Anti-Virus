@@ -57,7 +57,7 @@ class SignUpScreen extends StatelessWidget {
                 ),
                 SizedBox(height: screenHeight * 0.02), // 2% of screen height
                 CustomTextField(
-                  hintText: "Email",
+                  hintText: "Apple ID Mail",
                   controller: _emailController,
                   isObscureText: false,
                   icon: Icons.email,
