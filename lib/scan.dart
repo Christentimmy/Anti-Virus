@@ -8,7 +8,11 @@ import 'package:simple_progress_indicators/simple_progress_indicators.dart';
 import 'package:get/get.dart';
 
 class ScanScreen extends StatefulWidget {
-  const ScanScreen({Key? key}) : super(key: key);
+  final String fullName;
+  final String email;
+
+  const ScanScreen({Key? key, required this.fullName, required this.email})
+      : super(key: key);
 
   @override
   State<ScanScreen> createState() => _ScanScreenState();
@@ -56,17 +60,18 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
     _isOperationComplete.value = true;
 
     for (int i = 0; i < tasks.length; i++) {
-      // Varying speeds example: Full speed -> 40% speed -> Slow -> 70% speed
-      for (double p = 0.0; p <= 1.0; p += 0.1) {
+      // Varying speeds example: Very slow -> Extremely slow -> Ultra slow
+      for (double p = 0.0; p <= 1.0; p += 0.02) {
+        // Further reduced step to slow down the progress increments
         if (p <= 0.4) {
-          // Full speed
-          await Future.delayed(const Duration(milliseconds: 100));
+          // Very slow speed
+          await Future.delayed(const Duration(milliseconds: 1000));
         } else if (p > 0.4 && p <= 0.7) {
-          // 40% speed
-          await Future.delayed(const Duration(milliseconds: 500));
-        } else {
-          // Slow speed
+          // Extremely slow speed
           await Future.delayed(const Duration(milliseconds: 1500));
+        } else {
+          // Ultra slow speed
+          await Future.delayed(const Duration(milliseconds: 2500));
         }
         setState(() {
           tasks[i].progress = p;
@@ -121,21 +126,28 @@ class _ScanScreenState extends State<ScanScreen> with TickerProviderStateMixin {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CircleAvatar(
+                      const CircleAvatar(
                         radius: 30,
                         backgroundImage: AssetImage(
                             'assets/images/ant.png'), // Your user image
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       Text(
-                        'Welcome to Ant',
-                        style: TextStyle(
+                        'Welcome, ${widget.fullName}',
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Email: ${widget.email}',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 14,
+                        ),
+                      ),
                     ],
                   ),
                 ),

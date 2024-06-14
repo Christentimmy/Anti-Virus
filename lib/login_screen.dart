@@ -54,16 +54,25 @@ class _LoginScreenState extends State<LoginScreen> {
         // Check success flag
         if (responseData['success']) {
           // Registration successful, navigate to next screen
-          // Navigator.of(context).pushReplacement(
-          //   MaterialPageRoute(
-          //     builder: (context) => const ScanScreen(),
-          //   ),
-          // );
+
+          // print(responseData['user']);
+
+          final String fullName = responseData['user']['full_name'];
+          final String userEmail = responseData['user']['email'];
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: Colors.green,
-              content: Text(responseData['message'] ?? 'Successfully Received'),
+              content: Text(responseData['message'] ?? 'Successfully login'),
+            ),
+          );
+
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => ScanScreen(
+                fullName: fullName,
+                email: userEmail,
+              ),
             ),
           );
           setState(() {
