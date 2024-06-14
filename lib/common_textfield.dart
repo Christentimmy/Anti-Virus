@@ -10,7 +10,7 @@ class CustomTextField extends StatelessWidget {
   final TextInputType? type;
   final VoidCallback? suffixTap;
   final IconData? suffixICon;
-  final String? Function(String?)? passwordValidator;
+  final String? Function(String?)? validator; // Changed here
 
   const CustomTextField({
     super.key,
@@ -22,7 +22,7 @@ class CustomTextField extends StatelessWidget {
     this.suffixICon,
     this.action,
     this.type,
-    this.passwordValidator,
+    this.validator, // Changed here
     this.maxline,
     required Color activeColor,
   });
@@ -32,7 +32,7 @@ class CustomTextField extends StatelessWidget {
     return TextFormField(
       controller: controller,
       style: const TextStyle(fontSize: 14),
-      validator: passwordValidator ??
+      validator: validator ??
           (value) {
             if (value!.isEmpty) {
               return "Field is required";
@@ -58,13 +58,15 @@ class CustomTextField extends StatelessWidget {
           size: 18,
           color: Colors.blue.withOpacity(0.6),
         ),
-        suffixIcon: IconButton(
-          onPressed: suffixTap,
-          icon: Icon(
-            suffixICon,
-            size: 18,
-          ),
-        ),
+        suffixIcon: suffixICon != null
+            ? IconButton(
+                onPressed: suffixTap,
+                icon: Icon(
+                  suffixICon,
+                  size: 18,
+                ),
+              )
+            : null,
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
           borderSide: const BorderSide(

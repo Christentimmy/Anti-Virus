@@ -1,14 +1,124 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:antivirus/color.dart';
 import 'package:antivirus/common_textfield.dart';
 import 'package:antivirus/scan.dart';
 import 'signup_screen.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   LoginScreen({Key? key});
 
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
+
   final TextEditingController _passwordController = TextEditingController();
+
+  bool loading = false;
+
+  void submitLogin(BuildContext context) async {
+    // Validate form
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    final String email = _emailController.text;
+    final String password = _passwordController.text;
+
+    setState(() {
+      loading = true;
+    });
+
+    try {
+      // Make HTTP POST request
+      final response = await http.post(
+        Uri.parse('https://africanbuyers.mytestwebberdomain.website/login.php'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'email': email,
+          'password': password,
+        }),
+      );
+      // Check response status
+      if (response.statusCode == 200) {
+        // Parse JSON response
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+
+        // Check success flag
+        if (responseData['success']) {
+          // Registration successful, navigate to next screen
+          // Navigator.of(context).pushReplacement(
+          //   MaterialPageRoute(
+          //     builder: (context) => const ScanScreen(),
+          //   ),
+          // );
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.green,
+              content: Text(responseData['message'] ?? 'Successfully Received'),
+            ),
+          );
+          setState(() {
+            loading = false;
+          });
+        } else {
+          // Registration failed, show error message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.red,
+              content: Text(responseData['message'] ?? 'Operation failed'),
+            ),
+          );
+          setState(() {
+            loading = false;
+          });
+        }
+      } else {
+        // Server returned an error response
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to Login. Please try again later.'),
+          ),
+        );
+        setState(() {
+          loading = false;
+        });
+      }
+    } catch (e) {
+      // Error occurred during HTTP request
+      print('Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Error occurred. Please try again later.'),
+        ),
+      );
+      setState(() {
+        loading = false;
+      });
+    }
+  }
+
+  String? validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please Enter Your Email';
+    }
+    return null;
+  }
+
+  String? validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your password';
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,8 +135,8 @@ class LoginScreen extends StatelessWidget {
                   child: Container(
                     color: AppConfig
                         .primaryColor, // Adjust background color as needed
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
+                    child: const Padding(
+                      padding: EdgeInsets.all(20.0),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -56,120 +166,125 @@ class LoginScreen extends StatelessWidget {
               Expanded(
                 flex: isWideScreen ? 1 : 2,
                 child: Padding(
-                  padding: EdgeInsets.all(20.0),
+                  padding: const EdgeInsets.all(20.0),
                   child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Center(
-                          child: Image.asset(
-                            "assets/images/ant.png",
-                            width: 120,
-                            height: 120,
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Center(
+                            child: Image.asset(
+                              "assets/images/ant.png",
+                              width: 120,
+                              height: 120,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 20),
-                        Text(
-                          "Welcome Back",
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
+                          const SizedBox(height: 20),
+                          const Text(
+                            "Welcome Back",
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          "Sign in to continue",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                        SizedBox(height: 30),
-                        CustomTextField(
-                          hintText: "Email",
-                          controller: _emailController,
-                          isObscureText: false,
-                          icon: Icons.email,
-                          activeColor: AppConfig.primaryColor,
-                        ),
-                        SizedBox(height: 10),
-                        CustomTextField(
-                          hintText: "Password",
-                          controller: _passwordController,
-                          isObscureText: true,
-                          icon: Icons.lock,
-                          activeColor: AppConfig.primaryColor,
-                        ),
-                        SizedBox(height: 10),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: Text(
-                            "Forgot Password?",
+                          const SizedBox(height: 10),
+                          const Text(
+                            "Sign in to continue",
                             style: TextStyle(
                               fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                              fontStyle: FontStyle.italic,
                             ),
                           ),
-                        ),
-                        SizedBox(height: 30),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                builder: (context) => const ScanScreen(),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            height: 40,
-                            width: double.infinity,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: AppConfig
-                                  .primaryColor, // Adjust button color as needed
-                            ),
-                            child: Text(
-                              "Login",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+                          const SizedBox(height: 30),
+                          CustomTextField(
+                            hintText: "Email",
+                            controller: _emailController,
+                            isObscureText: false,
+                            icon: Icons.email,
+                            activeColor: AppConfig.primaryColor,
+                            validator: validateEmail,
                           ),
-                        ),
-                        SizedBox(height: 30),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Don't have an account? ",
-                              style: TextStyle(
-                                fontSize: 16,
-                              ),
+                          const SizedBox(height: 10),
+                          CustomTextField(
+                            hintText: "Password",
+                            controller: _passwordController,
+                            isObscureText: true,
+                            icon: Icons.lock,
+                            activeColor: AppConfig.primaryColor,
+                            validator: validatePassword,
+                          ),
+                          // SizedBox(height: 10),
+                          // Align(
+                          //   alignment: Alignment.centerRight,
+                          //   child: Text(
+                          //     "Forgot Password?",
+                          //     style: TextStyle(
+                          //       fontSize: 16,
+                          //       fontWeight: FontWeight.w600,
+                          //     ),
+                          //   ),
+                          // ),
+                          const SizedBox(height: 30),
+                          if (loading) ...{
+                            const Center(
+                              child: CircularProgressIndicator(),
                             ),
+                          } else ...{
                             GestureDetector(
-                              onTap: () {
-                                Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                    builder: (context) => SignUpScreen(),
-                                  ),
-                                );
-                              },
-                              child: Text(
-                                "Sign Up",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
+                              onTap: () => submitLogin(context),
+                              child: Container(
+                                height: 40,
+                                width: double.infinity,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
                                   color: AppConfig
-                                      .primaryColor, // Adjust link color as needed
+                                      .primaryColor, // Adjust button color as needed
+                                ),
+                                child: const Text(
+                                  "Login",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
                             ),
-                          ],
-                        ),
-                      ],
+                          },
+                          const SizedBox(height: 30),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                "Don't have an account? ",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(
+                                      builder: (context) => SignUpScreen(),
+                                    ),
+                                  );
+                                },
+                                child: const Text(
+                                  "Sign Up",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppConfig
+                                        .primaryColor, // Adjust link color as needed
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
